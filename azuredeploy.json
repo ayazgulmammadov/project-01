@@ -1,0 +1,101 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "firstResGroupName": {
+      "type": "string"
+    },
+    "secondResGroupName": {
+      "type": "string"
+    }
+  },
+  "variables": {
+    "firstStorageName": "ayazstr201902051",
+    "secondStorageName": "ayazstr201902052",
+    "firstResGroupLocation": "West Europe",
+    "secondResGroupLocation": "West Europe"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Resources/resourceGroups",
+      "name": "[parameters('firstResGroupName')]",
+      "location": "[variables('firstResGroupLocation')]",
+      "apiVersion": "2018-05-01",
+      "dependsOn": [],
+      "properties": {}
+    },
+    {
+      "type": "Microsoft.Resources/resourceGroups",
+      "name": "[parameters('secondResGroupName')]",
+      "location": "[variables('secondResGroupLocation')]",
+      "apiVersion": "2018-05-01",
+      "dependsOn": [],
+      "properties": {}
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "name": "nestedTemplate-01",
+      "apiVersion": "2018-05-01",
+      "dependsOn": [
+        "[parameters('firstResGroupName')]"
+      ],
+      "resourceGroup": "[parameters('firstResGroupName')]",
+      "properties": {
+        "mode": "Incremental",
+        "parameters": {},
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {},
+          "variables": {},
+          "resources": [
+            {
+              "type": "Microsoft.Storage/storageAccounts",
+              "name": "[variables('firstStorageName')]",
+              "location": "[variables('firstResGroupLocation')]",
+              "apiVersion": "2017-06-01",
+              "sku": {
+                "name": "Standard_LRS"
+              },
+              "kind": "Storage",
+              "properties": {}
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "name": "nestedTemplate-02",
+      "apiVersion": "2018-05-01",
+      "dependsOn": [
+        "[parameters('secondResGroupName')]"
+      ],
+      "resourceGroup": "[parameters('secondResGroupName')]",
+      "properties": {
+        "mode": "Incremental",
+        "parameters": {},
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {},
+          "variables": {},
+          "resources": [
+            {
+              "type": "Microsoft.Storage/storageAccounts",
+              "name": "[variables('secondStorageName')]",
+              "location": "[variables('secondResGroupLocation')]",
+              "apiVersion": "2017-06-01",
+              "sku": {
+                "name": "Standard_LRS"
+              },
+              "kind": "Storage",
+              "properties": {}
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "outputs": {}
+}
